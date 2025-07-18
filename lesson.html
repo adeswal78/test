@@ -156,7 +156,6 @@
     const videoContainer = document.getElementById("videos");
     const notesContainer = document.getElementById("notes");
 
-    // Load lesson data
     fetch(`https://api.khanglobalstudies.com/cms/courses/${courseId}/lessons/${lessonId}`)
       .then(res => res.json())
       .then(async data => {
@@ -169,7 +168,7 @@
           const ytUrl = await getYouTubeUrl(video);
 
           if (isPDF) {
-            const html = `
+            notesContainer.innerHTML += `
               <div class="item">
                 <div class="pdf-item-name">
                   <span class="pdf-icon">📄</span> ${video.name}
@@ -179,13 +178,12 @@
                 </div>
               </div>
             `;
-            notesContainer.innerHTML += html;
           } else {
             const thumbImg = video.thumb
               ? `<img src="${video.thumb}" alt="Thumbnail">`
               : `<div style="height:150px;background:#ccc;text-align:center;line-height:150px;">No Thumbnail</div>`;
 
-            const html = `
+            videoContainer.innerHTML += `
               <div class="item">
                 ${thumbImg}
                 <h3>${video.name}</h3>
@@ -197,12 +195,11 @@
                 </div>
               </div>
             `;
-            videoContainer.innerHTML += html;
           }
         }
       });
 
-    // Tab switching
+    // Tabs
     document.querySelectorAll(".tab-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -212,7 +209,7 @@
       });
     });
 
-    // Extract HTML Button
+    // HTML Extract Button
     document.getElementById("extractBtn").addEventListener("click", () => {
       const blob = new Blob(["<!DOCTYPE html>\n" + document.documentElement.outerHTML], { type: "text/html" });
       const url = URL.createObjectURL(blob);
@@ -223,33 +220,18 @@
       URL.revokeObjectURL(url);
     });
 
-    // YouTube ID extractor
-    function extractYouTubeId(input) {
-      if (!input) return null;
-      const match = input.match(/(?:embed\/|watch\?v=|youtu\.be\/|i\.ytimg\.com\/vi\/)([a-zA-Z0-9_-]{11})/);
-      return match ? match[1] : null;
-    }
-
-    // Get YouTube link either from thumb/video_url or from iframe in KGS player
+    // Get YouTube link from iframe only
     async function getYouTubeUrl(video) {
-      const idFromBasic = extractYouTubeId(video.video_url) || extractYouTubeId(video.thumb);
-      if (idFromBasic) {
-        return `https://youtube.com/watch?v=${idFromBasic}`;
-      }
-
       const kgsUrl = `https://khanglobalstudies.com/player?vvid=${video.id}`;
       try {
         const res = await fetch(kgsUrl);
-        const text = await res.text();
-        const match = text.match(/<iframe.*?src="([^"]*youtube\.com[^"]*)"/);
-        if (match && match[1]) {
-          return match[1];
-        }
-      } catch (e) {
-        console.warn("Failed to fetch iframe YT link for video:", video.id);
+        const html = await res.text();
+        const match = html.match(/<iframe.*?src="([^"]*youtube\.com[^"]*)"/);
+        return match ? match[1] : null;
+      } catch (err) {
+        console.warn("YouTube iframe fetch failed for ID:", video.id);
+        return null;
       }
-
-      return null;
     }
   </script>
 </body>
