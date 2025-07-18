@@ -12,10 +12,33 @@
       padding: 20px;
     }
 
-    h1 {
-      text-align: center;
-      color: #3f3f3f;
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
       margin-bottom: 25px;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+      color: #3f3f3f;
+      margin: 0;
+    }
+
+    #extractBtn {
+      padding: 8px 16px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #extractBtn:hover {
+      background-color: #43a047;
     }
 
     .subject-container {
@@ -90,7 +113,11 @@
   </style>
 </head>
 <body>
-  <h1 id="courseTitle">Loading...</h1>
+  <div class="header">
+    <h1 id="courseTitle">Loading...</h1>
+    <button id="extractBtn">Extract</button>
+  </div>
+
   <div class="subject-container" id="subjects">Loading subjects...</div>
   <div id="status"></div>
 
@@ -100,14 +127,15 @@
     const courseTitleEl = document.getElementById('courseTitle');
     const subjectsContainer = document.getElementById('subjects');
     const statusDiv = document.getElementById('status');
+    const extractBtn = document.getElementById('extractBtn');
+
+    let globalSubjectHTML = '';
 
     fetch(`https://api.khanglobalstudies.com/cms/courses/${courseId}`)
       .then(res => res.json())
       .then(course => {
         courseTitleEl.textContent = course.title || 'Course Title';
-
         const subjects = course.classroom || [];
-
         subjectsContainer.innerHTML = '';
 
         if (subjects.length === 0) {
@@ -115,24 +143,28 @@
           return;
         }
 
+        let htmlExport = '';
+
         subjects.forEach(subject => {
           const lessonId = subject.id;
           const videos = subject.videos || 0;
           const notes = subject.notes || 0;
 
-          const card = document.createElement('div');
-          card.className = 'subject-card';
-
-          card.innerHTML = `
-            <div class="subject-content">
-              <div class="subject-title">${subject.name}</div>
-              <div class="subject-info">${videos} Videos, ${notes} Notes</div>
-              <a class="subject-button" href="lesson.html?courseId=${courseId}&lessonId=${lessonId}">Open Lessons</a>
+          const html = `
+            <div class="subject-card">
+              <div class="subject-content">
+                <div class="subject-title">${subject.name}</div>
+                <div class="subject-info">${videos} Videos, ${notes} Notes</div>
+                <a class="subject-button" href="lesson.html?courseId=${courseId}&lessonId=${lessonId}">Open Lessons</a>
+              </div>
             </div>
           `;
 
-          subjectsContainer.appendChild(card);
+          subjectsContainer.innerHTML += html;
+          htmlExport += html;
         });
+
+        globalSubjectHTML = htmlExport;
       })
       .catch(err => {
         courseTitleEl.textContent = 'Failed to load course';
@@ -140,6 +172,37 @@
         statusDiv.textContent = 'Something went wrong while fetching course details.';
         console.error(err);
       });
+
+    extractBtn.addEventListener('click', () => {
+      const fullHTML = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8" />
+          <title>Extracted Subjects</title>
+          <style>
+            body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f2f2f2; }
+            .subject-card { background: white; border-radius: 10px; box-shadow: 0 3px 8px rgba(0,0,0,0.1); padding: 15px; margin-bottom: 15px; }
+            .subject-title { font-weight: bold; font-size: 1rem; margin-bottom: 8px; }
+            .subject-info { font-size: 0.9rem; color: #666; margin-bottom: 12px; }
+            .subject-button { background: #673ab7; color: white; padding: 8px 12px; border-radius: 6px; text-decoration: none; }
+          </style>
+        </head>
+        <body>
+          <h1>${courseTitleEl.textContent}</h1>
+          ${globalSubjectHTML}
+        </body>
+        </html>
+      `;
+
+      const blob = new Blob([fullHTML], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${courseTitleEl.textContent.replace(/\s+/g, '_')}_Subjects.html`;
+      link.click();
+      URL.revokeObjectURL(url);
+    });
   </script>
 </body>
 </html>
