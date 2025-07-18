@@ -15,20 +15,27 @@
     h1 {
       text-align: center;
       color: #3f3f3f;
-      margin-bottom: 10px;
+      margin-bottom: 20px;
     }
 
     .search-container {
-      max-width: 400px;
-      margin: 0 auto 20px;
+      max-width: 320px;
+      margin: 0 auto 25px;
     }
 
     #searchInput {
       width: 100%;
-      padding: 10px;
-      border-radius: 6px;
+      padding: 10px 14px;
+      border-radius: 25px;
       border: 1px solid #ccc;
       font-size: 1rem;
+      outline: none;
+      transition: 0.2s ease;
+    }
+
+    #searchInput:focus {
+      border-color: #673ab7;
+      box-shadow: 0 0 5px rgba(103, 58, 183, 0.3);
     }
 
     .course-container {
@@ -87,13 +94,12 @@
     .course-button {
       background: #673ab7;
       color: white;
-      padding: 10px 16px;
-      text-align: center;
-      border-radius: 6px;
+      padding: 8px 20px;
+      border-radius: 20px;
       text-decoration: none;
-      display: inline-block;
-      font-size: 0.95rem;
-      width: 100%;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition: background 0.2s ease;
     }
 
     .course-button:hover {
@@ -129,7 +135,7 @@
   <h1>All KGS Courses</h1>
 
   <div class="search-container">
-    <input type="text" id="searchInput" placeholder="Search course by title..." />
+    <input type="text" id="searchInput" placeholder="Search courses...">
   </div>
 
   <div class="course-container" id="courseList">Loading courses...</div>
@@ -139,6 +145,7 @@
   <script>
     let currentPage = 1;
     let allCourses = [];
+
     const courseList = document.getElementById('courseList');
     const loadMoreBtn = document.getElementById('loadMore');
     const statusDiv = document.getElementById('status');
@@ -147,7 +154,7 @@
     function renderCourses(courses) {
       courseList.innerHTML = '';
       if (courses.length === 0) {
-        courseList.innerHTML = '<p style="text-align:center;">No courses found.</p>';
+        courseList.innerHTML = '<p style="text-align:center; color:gray;">No courses found.</p>';
         return;
       }
 
@@ -173,12 +180,9 @@
       fetch(`https://api.khanglobalstudies.com/cms/courses?page=${page}`)
         .then(res => res.json())
         .then(data => {
-          if (page === 1) {
-            allCourses = data.data || [];
-          } else {
-            allCourses = [...allCourses, ...(data.data || [])];
-          }
+          const newCourses = data.data || [];
 
+          allCourses = [...allCourses, ...newCourses];
           renderCourses(allCourses);
 
           if (!data.next_page_url) {
@@ -196,15 +200,15 @@
 
     searchInput.addEventListener('input', () => {
       const query = searchInput.value.toLowerCase();
-      const filtered = allCourses.filter(c => (c.title || '').toLowerCase().includes(query));
+      const filtered = allCourses.filter(course => course.title?.toLowerCase().includes(query));
       renderCourses(filtered);
     });
-
-    loadCourses(currentPage);
 
     loadMoreBtn.addEventListener('click', () => {
       loadCourses(currentPage);
     });
+
+    loadCourses(currentPage);
   </script>
 </body>
 </html>
