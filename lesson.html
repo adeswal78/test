@@ -105,7 +105,7 @@
     }
 
     .btns a.kgs-btn {
-      background: #673ab7;
+      background: #512da8;
     }
 
     .btns a.yt-btn {
@@ -165,7 +165,8 @@
         videos.forEach(video => {
           const isPDF = video.type === 'pdf';
           const kgsUrl = `https://khanglobalstudies.com/player?vvid=${video.id}`;
-          const ytId = extractYouTubeId(video.video_url) || extractYouTubeId(video.thumb);
+          const thumb = video.thumb || '';
+          const ytId = extractYouTubeId(thumb);
           const ytUrl = ytId ? `https://youtube.com/watch?v=${ytId}` : null;
 
           if (isPDF) {
@@ -202,6 +203,12 @@
         });
       });
 
+    function extractYouTubeId(input) {
+      if (!input) return null;
+      const match = input.match(/(?:embed\/|watch\?v=|youtu\.be\/|i\.ytimg\.com\/vi\/)([a-zA-Z0-9_-]{11})/);
+      return match ? match[1] : null;
+    }
+
     // Tab switching
     document.querySelectorAll(".tab-btn").forEach(btn => {
       btn.addEventListener("click", () => {
@@ -212,14 +219,7 @@
       });
     });
 
-    // YouTube ID extractor
-    function extractYouTubeId(input) {
-      if (!input) return null;
-      const match = input.match(/(?:embed\/|watch\?v=|youtu\.be\/|i\.ytimg\.com\/vi\/)([a-zA-Z0-9_-]{11})/);
-      return match ? match[1] : null;
-    }
-
-    // Extract button: download current page as HTML
+    // HTML Extract Button
     document.getElementById("extractBtn").addEventListener("click", () => {
       const blob = new Blob(["<!DOCTYPE html>\n" + document.documentElement.outerHTML], { type: "text/html" });
       const url = URL.createObjectURL(blob);
