@@ -1,4 +1,5 @@
-<!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <title>Lesson Detail</title>
@@ -9,234 +10,225 @@
       background: #f2f2f2;
       margin: 0;
       padding: 20px;
-    }h1 {
-  font-size: 24px;
-  margin-bottom: 10px;
-  color: #333;
-  text-align: center;
-}
+    }
 
-.top-bar {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 20px;
-}
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+      color: #333;
+      text-align: center;
+    }
 
-.extract-btn {
-  background: #ff9800;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 0.95rem;
-}
+    .extract-btn {
+      display: block;
+      margin: 0 auto 20px;
+      background-color: #673ab7;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 1rem;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s;
+    }
 
-.tabs {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  margin-bottom: 20px;
-}
+    .extract-btn:hover {
+      background-color: #5e35b1;
+    }
 
-.tabs button {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
-  background: #e0e0e0;
-  cursor: pointer;
-  font-weight: bold;
-  color: #555;
-}
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
 
-.tabs button.active {
-  background: #673ab7;
-  color: #fff;
-}
+    .tabs button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      background: #e0e0e0;
+      cursor: pointer;
+      font-weight: bold;
+      color: #555;
+    }
 
-.tab-content {
-  display: none;
-}
+    .tabs button.active {
+      background: #673ab7;
+      color: #fff;
+    }
 
-.tab-content.active {
-  display: block;
-}
+    .tab-content {
+      display: none;
+    }
 
-.item {
-  background: #fff;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 10px;
-  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+    .tab-content.active {
+      display: block;
+    }
 
-.item img {
-  width: 100%;
-  max-height: 180px;
-  object-fit: cover;
-  border-radius: 6px;
-}
+    .item {
+      background: #fff;
+      padding: 15px;
+      margin-bottom: 15px;
+      border-radius: 10px;
+      box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+    }
 
-.pdf-item-name {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 1rem;
-  color: #333;
-  font-weight: 600;
-}
+    .item img {
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 10px;
+    }
 
-.pdf-icon {
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-  color: #e53935;
-  font-weight: bold;
-  user-select: none;
-}
+    .item h3 {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      color: #333;
+    }
 
-.item h3 {
-  margin: 0;
-  font-size: 1rem;
-  color: #333;
-  font-weight: normal;
-}
+    .btns {
+      margin-top: 5px;
+    }
 
-.btns {
-  margin-top: 5px;
-}
+    .btns a {
+      display: inline-block;
+      margin-right: 10px;
+      padding: 8px 14px;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #fff;
+      text-decoration: none;
+    }
 
-.btns a {
-  display: inline-block;
-  margin-right: 10px;
-  padding: 8px 14px;
-  border-radius: 4px;
-  font-size: 0.9rem;
-  font-weight: bold;
-  color: #fff;
-  text-decoration: none;
-}
+    .btns a.kgs-btn {
+      background: #673ab7;
+    }
 
-.btns a.kgs-btn {
-  background: #512da8;
-}
+    .btns a.yt-btn {
+      background: #e53935;
+    }
 
-.btns a.yt-btn {
-  background: #d32f2f;
-}
+    .btns a.download-btn {
+      background: #4caf50;
+    }
 
-.btns a.disabled {
-  background: #aaa;
-  pointer-events: none;
-}
+    .btns a.disabled {
+      background: #aaa;
+      pointer-events: none;
+    }
 
-.btns a.download-btn {
-  background: #388e3c;
-}
+    .pdf-item-name {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+    }
 
+    .pdf-icon {
+      width: 24px;
+      height: 24px;
+    }
   </style>
 </head>
-<body>  <h1 id="lessonTitle">Loading Lesson...</h1>
-  <div class="top-bar">
-    <button class="extract-btn" id="extractBtn">⬇️ Extract HTML</button>
-  </div>  <div class="tabs">
+<body>
+
+  <h1 id="lessonTitle">Loading Lesson...</h1>
+  <button class="extract-btn" id="extractBtn">📥 Extract HTML</button>
+
+  <div class="tabs">
     <button class="tab-btn active" data-tab="videos">Videos</button>
     <button class="tab-btn" data-tab="notes">Notes</button>
-  </div>  <div id="videos" class="tab-content active"></div>
-  <div id="notes" class="tab-content"></div>  <script>
-    const urlParams = new URLSearchParams(window.location.search);
-    const courseId = urlParams.get('courseId');
-    const lessonId = urlParams.get('lessonId');
+  </div>
 
-    const videoContainer = document.getElementById('videos');
-    const notesContainer = document.getElementById('notes');
-    const titleEl = document.getElementById('lessonTitle');
-    const extractBtn = document.getElementById('extractBtn');
+  <div id="videos" class="tab-content active"></div>
+  <div id="notes" class="tab-content"></div>
 
-    let allVideos = [], allNotes = [];
+  <script>
+    const courseId = new URLSearchParams(location.search).get("courseId");
+    const lessonId = new URLSearchParams(location.search).get("lessonId");
+
+    const titleEl = document.getElementById("lessonTitle");
+    const videoContainer = document.getElementById("videos");
+    const notesContainer = document.getElementById("notes");
 
     fetch(`https://api.khanglobalstudies.com/cms/courses/${courseId}/lessons/${lessonId}`)
       .then(res => res.json())
       .then(data => {
         titleEl.textContent = data.name || "Lesson";
-        allVideos = data.videos.filter(v => v.type !== 'pdf');
-        allNotes = data.videos.filter(v => v.type === 'pdf');
+        const videos = data.videos || [];
 
-        renderContent();
+        videos.forEach(video => {
+          const isPDF = video.type === 'pdf';
+          const kgsUrl = `https://khanglobalstudies.com/player?vvid=${video.id}`;
+          const ytId = extractYouTubeId(video.video_url) || extractYouTubeId(video.thumb);
+          const ytUrl = ytId ? `https://youtube.com/watch?v=${ytId}` : null;
+
+          if (isPDF) {
+            const html = `
+              <div class="item">
+                <div class="pdf-item-name">
+                  <span class="pdf-icon">📄</span> ${video.name}
+                </div>
+                <div class="btns">
+                  <a class="download-btn" href="${video.video_url}" target="_blank">Download</a>
+                </div>
+              </div>
+            `;
+            notesContainer.innerHTML += html;
+          } else {
+            const thumbImg = video.thumb
+              ? `<img src="${video.thumb}" alt="Thumbnail">`
+              : `<div style="height:150px;background:#ccc;text-align:center;line-height:150px;">No Thumbnail</div>`;
+
+            const html = `
+              <div class="item">
+                ${thumbImg}
+                <h3>${video.name}</h3>
+                <div class="btns">
+                  <a class="kgs-btn" href="${kgsUrl}" target="_blank">KGS</a>
+                  ${ytUrl
+                    ? `<a class="yt-btn" href="${ytUrl}" target="_blank">YouTube</a>`
+                    : `<a class="yt-btn disabled">YouTube</a>`}
+                </div>
+              </div>
+            `;
+            videoContainer.innerHTML += html;
+          }
+        });
       });
 
-    function renderContent() {
-      allVideos.forEach(video => {
-        const ytId = extractYouTubeId(video.video_url) || extractYouTubeId(video.thumb);
-        const youtubeUrl = ytId ? `https://www.youtube.com/watch?v=${ytId}` : null;
-        const kgsUrl = `https://khanglobalstudies.com/player?vvid=${video.id}`;
-        const thumbImg = video.thumb
-          ? `<img src="${video.thumb}" alt="Thumbnail">`
-          : `<div style="height:150px;background:#ccc;text-align:center;line-height:150px;">No Thumbnail</div>`;
-
-        videoContainer.innerHTML += `
-          <div class="item">
-            ${thumbImg}
-            <h3>${video.name}</h3>
-            <div class="btns">
-              <a class="kgs-btn" href="${kgsUrl}" target="_blank">KGS</a>
-              ${youtubeUrl ? `<a class="yt-btn" href="${youtubeUrl}" target="_blank">YouTube</a>` : `<a class="yt-btn disabled">YouTube</a>`}
-            </div>
-          </div>
-        `;
+    // Tab switching
+    document.querySelectorAll(".tab-btn").forEach(btn => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".tab-content").forEach(c => c.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById(btn.dataset.tab).classList.add("active");
       });
+    });
 
-      allNotes.forEach(note => {
-        notesContainer.innerHTML += `
-          <div class="item">
-            <div class="pdf-item-name">
-              <span class="pdf-icon">📄</span>
-              <h3>${note.name}</h3>
-            </div>
-            <div class="btns">
-              <a class="download-btn" href="${note.video_url}" target="_blank">Download</a>
-            </div>
-          </div>
-        `;
-      });
-    }
-
+    // YouTube ID extractor
     function extractYouTubeId(input) {
       if (!input) return null;
-      const ytRegex = /(?:embed\/|watch\?v=|youtu\.be\/|vi\/|\/v\/|\/e\/|watch\?.+&v=)([a-zA-Z0-9_-]{11})|i\.ytimg\.com\/vi\/([a-zA-Z0-9_-]{11})/;
-      const match = input.match(ytRegex);
-      return match ? (match[1] || match[2]) : null;
+      const match = input.match(/(?:embed\/|watch\?v=|youtu\.be\/|i\.ytimg\.com\/vi\/)([a-zA-Z0-9_-]{11})/);
+      return match ? match[1] : null;
     }
 
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        btn.classList.add('active');
-        document.getElementById(btn.dataset.tab).classList.add('active');
-      });
+    // Extract button: download current page as HTML
+    document.getElementById("extractBtn").addEventListener("click", () => {
+      const blob = new Blob(["<!DOCTYPE html>\n" + document.documentElement.outerHTML], { type: "text/html" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${titleEl.textContent || "lesson"}.html`;
+      a.click();
+      URL.revokeObjectURL(url);
     });
-
-    extractBtn.addEventListener('click', () => {
-      let htmlContent = `<h2>${titleEl.textContent}</h2>`;
-
-      allVideos.forEach(v => {
-        htmlContent += `<p><strong>${v.name}</strong><br>🔗 https://khanglobalstudies.com/player?vvid=${v.id}</p>`;
-      });
-
-      allNotes.forEach(n => {
-        htmlContent += `<p><strong>${n.name}</strong><br>📄 <a href='${n.video_url}'>${n.video_url}</a></p>`;
-      });
-
-      const blob = new Blob([htmlContent], { type: "text/html" });
-      const link = document.createElement("a");
-      link.href = URL.createObjectURL(blob);
-      link.download = `${titleEl.textContent.replace(/\s+/g, '_')}_extracted.html`;
-      link.click();
-    });
-  </script></body>
+  </script>
+</body>
 </html>
