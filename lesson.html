@@ -156,6 +156,35 @@
     const videoContainer = document.getElementById("videos");
     const notesContainer = document.getElementById("notes");
 
+    async function getYouTubeFromIframe(videoId) {
+      return new Promise((resolve) => {
+        const iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        iframe.src = `https://khanglobalstudies.com/player?vvid=${videoId}`;
+        document.body.appendChild(iframe);
+
+        iframe.onload = () => {
+          try {
+            const ytIframe = iframe.contentDocument?.querySelector('iframe[src*="youtube.com"]');
+            if (ytIframe) {
+              resolve(ytIframe.src);
+            } else {
+              resolve(null);
+            }
+          } catch (e) {
+            resolve(null);
+          } finally {
+            iframe.remove();
+          }
+        };
+
+        setTimeout(() => {
+          resolve(null);
+          iframe.remove();
+        }, 3000);
+      });
+    }
+
     fetch(`https://api.khanglobalstudies.com/cms/courses/${courseId}/lessons/${lessonId}`)
       .then(res => res.json())
       .then(async data => {
@@ -165,10 +194,9 @@
         for (const video of videos) {
           const isPDF = video.type === 'pdf';
           const kgsUrl = `https://khanglobalstudies.com/player?vvid=${video.id}`;
-          const ytUrl = await getYouTubeUrl(video);
 
           if (isPDF) {
-            notesContainer.innerHTML += `
+            const html = `
               <div class="item">
                 <div class="pdf-item-name">
                   <span class="pdf-icon">📄</span> ${video.name}
@@ -178,12 +206,14 @@
                 </div>
               </div>
             `;
+            notesContainer.innerHTML += html;
           } else {
+            const ytUrl = await getYouTubeFromIframe(video.id);
             const thumbImg = video.thumb
               ? `<img src="${video.thumb}" alt="Thumbnail">`
               : `<div style="height:150px;background:#ccc;text-align:center;line-height:150px;">No Thumbnail</div>`;
 
-            videoContainer.innerHTML += `
+            const html = `
               <div class="item">
                 ${thumbImg}
                 <h3>${video.name}</h3>
@@ -195,11 +225,11 @@
                 </div>
               </div>
             `;
+            videoContainer.innerHTML += html;
           }
         }
       });
 
-    // Tabs
     document.querySelectorAll(".tab-btn").forEach(btn => {
       btn.addEventListener("click", () => {
         document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
@@ -209,7 +239,6 @@
       });
     });
 
-    // HTML Extract Button
     document.getElementById("extractBtn").addEventListener("click", () => {
       const blob = new Blob(["<!DOCTYPE html>\n" + document.documentElement.outerHTML], { type: "text/html" });
       const url = URL.createObjectURL(blob);
@@ -219,20 +248,6 @@
       a.click();
       URL.revokeObjectURL(url);
     });
-
-    // Get YouTube link from iframe only
-    async function getYouTubeUrl(video) {
-      const kgsUrl = `https://khanglobalstudies.com/player?vvid=${video.id}`;
-      try {
-        const res = await fetch(kgsUrl);
-        const html = await res.text();
-        const match = html.match(/<iframe.*?src="([^"]*youtube\.com[^"]*)"/);
-        return match ? match[1] : null;
-      } catch (err) {
-        console.warn("YouTube iframe fetch failed for ID:", video.id);
-        return null;
-      }
-    }
   </script>
 </body>
 </html>
