@@ -22,55 +22,32 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      margin-bottom: 20px;
       flex-wrap: wrap;
       gap: 10px;
-      margin-bottom: 25px;
     }
 
-    .search-wrapper {
-      position: relative;
-      flex: 1 1 250px;
-      max-width: 320px;
-    }
-
-    #searchInput {
-      width: 100%;
-      padding: 10px 40px;
-      border-radius: 25px;
+    #searchBar {
+      padding: 8px 12px;
       border: 1px solid #ccc;
+      border-radius: 8px;
       font-size: 1rem;
-      outline: none;
-      transition: 0.2s ease;
-      box-sizing: border-box;
+      width: 260px;
+      max-width: 100%;
     }
 
-    #searchInput:focus {
-      border-color: #673ab7;
-      box-shadow: 0 0 5px rgba(103, 58, 183, 0.3);
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
+    #toggleFavs {
+      padding: 8px 16px;
       font-size: 1rem;
-      color: #888;
-    }
-
-    .fav-toggle-btn {
-      background: #ff4081;
+      background: #673ab7;
       color: white;
-      padding: 10px 16px;
       border: none;
-      border-radius: 25px;
+      border-radius: 8px;
       cursor: pointer;
-      font-size: 0.9rem;
-      transition: 0.3s;
     }
 
-    .fav-toggle-btn:hover {
-      background: #e91e63;
+    #toggleFavs:hover {
+      background: #5e35b1;
     }
 
     .course-container {
@@ -99,7 +76,6 @@
       display: flex;
       flex-direction: column;
       transition: transform 0.2s;
-      position: relative;
     }
 
     .course-card:hover {
@@ -116,14 +92,23 @@
       padding: 12px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
     }
 
     .course-title {
       font-weight: bold;
       font-size: 1rem;
-      margin-bottom: 10px;
       color: #333;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .fav-icon {
+      font-size: 20px;
+      cursor: pointer;
+      user-select: none;
+      margin-left: 8px;
+      transition: all 0.2s ease;
     }
 
     .course-button {
@@ -133,27 +118,12 @@
       text-align: center;
       border-radius: 8px;
       text-decoration: none;
-      display: block;
-      font-size: 1rem;
-      transition: 0.3s;
+      font-size: 0.95rem;
+      margin-top: 10px;
     }
 
     .course-button:hover {
       background: #5e35b1;
-    }
-
-    .fav-icon {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      font-size: 1.2rem;
-      cursor: pointer;
-      color: #ccc;
-      transition: color 0.3s;
-    }
-
-    .fav-icon.active {
-      color: #e91e63;
     }
 
     #loadMore {
@@ -182,14 +152,11 @@
   </style>
 </head>
 <body>
-  <h1>All KGS Courses</h1>
+  <h1>KGS Courses</h1>
 
   <div class="top-bar">
-    <div class="search-wrapper">
-      <input type="text" id="searchInput" placeholder="Search courses..." />
-      <span class="search-icon">🔍</span>
-    </div>
-    <button class="fav-toggle-btn" id="toggleFavBtn">❤️ Show Favorites</button>
+    <input type="text" id="searchBar" placeholder="Search courses..." />
+    <button id="toggleFavs">Show Favorites</button>
   </div>
 
   <div class="course-container" id="courseList">Loading courses...</div>
@@ -199,20 +166,20 @@
   <script>
     let currentPage = 1;
     let allCourses = [];
-    let showOnlyFav = false;
+    let showingFavorites = false;
     const courseList = document.getElementById('courseList');
     const loadMoreBtn = document.getElementById('loadMore');
     const statusDiv = document.getElementById('status');
-    const searchInput = document.getElementById('searchInput');
-    const toggleFavBtn = document.getElementById('toggleFavBtn');
+    const searchBar = document.getElementById('searchBar');
+    const toggleFavsBtn = document.getElementById('toggleFavs');
 
-    const getFavs = () => JSON.parse(localStorage.getItem("favoriteCourses") || "[]");
-    const saveFavs = (arr) => localStorage.setItem("favoriteCourses", JSON.stringify(arr));
+    let favorites = JSON.parse(localStorage.getItem('favorites') || '[]');
 
     function renderCourses(courses) {
       courseList.innerHTML = '';
+
       if (courses.length === 0) {
-        courseList.innerHTML = '<p style="text-align:center; color:gray;">No matching courses found.</p>';
+        courseList.innerHTML = '<p style="text-align:center;">No courses found.</p>';
         return;
       }
 
@@ -222,8 +189,17 @@
         const imgUrl = course.image?.medium || '';
         const title = course.title || 'Untitled';
         const courseId = course.id;
-        const favs = getFavs();
-        const isFav = favs.includes(courseId);
+        const isFav = favorites.includes(courseId);
+
+        const favIcon = document.createElement('span');
+        favIcon.className = 'fav-icon';
+        favIcon.innerHTML = isFav ? '✅' : '☑️';
+        favIcon.style.color = isFav ? '#4caf50' : '#444';
+
+        favIcon.addEventListener('click', () => {
+          toggleFavorite(courseId);
+          renderFilteredCourses();
+        });
 
         card.innerHTML = `
           <img src="${imgUrl}" alt="${title}" />
@@ -231,50 +207,19 @@
             <div class="course-title">${title}</div>
             <a class="course-button" href="course-detail.html?courseId=${courseId}">View Details</a>
           </div>
-          <span class="fav-icon ${isFav ? 'active' : ''}" data-id="${courseId}">❤️</span>
         `;
+
+        // Add fav icon to title div
+        card.querySelector('.course-title').appendChild(favIcon);
+
         courseList.appendChild(card);
       });
-
-      document.querySelectorAll(".fav-icon").forEach(icon => {
-        icon.addEventListener("click", () => {
-          const id = parseInt(icon.dataset.id);
-          let favs = getFavs();
-          if (favs.includes(id)) {
-            favs = favs.filter(f => f !== id);
-          } else {
-            favs.push(id);
-          }
-          saveFavs(favs);
-          renderFilteredCourses(); // re-render to update icons
-        });
-      });
-    }
-
-    function renderFilteredCourses() {
-      const searchTerm = searchInput.value.toLowerCase();
-      let filtered = allCourses;
-
-      if (searchTerm) {
-        filtered = filtered.filter(course =>
-          course.title?.toLowerCase().includes(searchTerm)
-        );
-      }
-
-      if (showOnlyFav) {
-        const favIds = getFavs();
-        filtered = filtered.filter(course => favIds.includes(course.id));
-      }
-
-      renderCourses(filtered);
     }
 
     function loadCourses(page = 1) {
       fetch(`https://api.khanglobalstudies.com/cms/courses?page=${page}`)
         .then(res => res.json())
         .then(data => {
-          if (page === 1) allCourses = [];
-
           allCourses = allCourses.concat(data.data || []);
           renderFilteredCourses();
 
@@ -291,11 +236,36 @@
         });
     }
 
-    searchInput.addEventListener('input', renderFilteredCourses);
+    function renderFilteredCourses() {
+      let filtered = allCourses;
+      const searchText = searchBar.value.toLowerCase().trim();
 
-    toggleFavBtn.addEventListener('click', () => {
-      showOnlyFav = !showOnlyFav;
-      toggleFavBtn.textContent = showOnlyFav ? '📚 Show All' : '❤️ Show Favorites';
+      if (searchText) {
+        filtered = filtered.filter(c => c.title?.toLowerCase().includes(searchText));
+      }
+
+      if (showingFavorites) {
+        filtered = filtered.filter(c => favorites.includes(c.id));
+      }
+
+      renderCourses(filtered);
+    }
+
+    function toggleFavorite(id) {
+      const index = favorites.indexOf(id);
+      if (index > -1) {
+        favorites.splice(index, 1);
+      } else {
+        favorites.push(id);
+      }
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+    }
+
+    searchBar.addEventListener('input', renderFilteredCourses);
+
+    toggleFavsBtn.addEventListener('click', () => {
+      showingFavorites = !showingFavorites;
+      toggleFavsBtn.textContent = showingFavorites ? 'Show All' : 'Show Favorites';
       renderFilteredCourses();
     });
 
