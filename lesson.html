@@ -162,15 +162,31 @@
         titleEl.textContent = data.name || "Lesson";
         const videos = data.videos || [];
 
-        videos.forEach(video => {
+        videos.forEach(async video => {
           const isPDF = video.type === 'pdf';
           const kgsUrl = `https://khanglobalstudies.com/player?vvid=${video.id}`;
           const thumb = video.thumb || '';
-          const ytId = extractYouTubeId(thumb);
-          const ytUrl = ytId ? `https://youtube.com/watch?v=${ytId}` : null;
+          let ytId = extractYouTubeId(thumb);
+          let ytUrl = ytId ? `https://youtube.com/watch?v=${ytId}` : null;
+
+          // 👇 Try iframe fetch if thumbnail didn’t have YouTube link
+          if (!ytUrl) {
+            try {
+              const res = await fetch(kgsUrl);
+              const html = await res.text();
+              const parser = new DOMParser();
+              const doc = parser.parseFromString(html, 'text/html');
+              const iframe = doc.querySelector('iframe[src*="youtube.com"]');
+              if (iframe) {
+                ytUrl = iframe.src.replace("/embed/", "/watch?v=").split('?')[0];
+              }
+            } catch (e) {
+              console.warn("Iframe fetch failed for:", video.id, e);
+            }
+          }
 
           if (isPDF) {
-            const html = `
+            notesContainer.innerHTML += `
               <div class="item">
                 <div class="pdf-item-name">
                   <span class="pdf-icon">📄</span> ${video.name}
@@ -180,13 +196,12 @@
                 </div>
               </div>
             `;
-            notesContainer.innerHTML += html;
           } else {
             const thumbImg = video.thumb
               ? `<img src="${video.thumb}" alt="Thumbnail">`
               : `<div style="height:150px;background:#ccc;text-align:center;line-height:150px;">No Thumbnail</div>`;
 
-            const html = `
+            videoContainer.innerHTML += `
               <div class="item">
                 ${thumbImg}
                 <h3>${video.name}</h3>
@@ -198,7 +213,6 @@
                 </div>
               </div>
             `;
-            videoContainer.innerHTML += html;
           }
         });
       });
@@ -219,7 +233,7 @@
       });
     });
 
-    // HTML Extract Button
+    // Extract button: download full HTML
     document.getElementById("extractBtn").addEventListener("click", () => {
       const blob = new Blob(["<!DOCTYPE html>\n" + document.documentElement.outerHTML], { type: "text/html" });
       const url = URL.createObjectURL(blob);
@@ -231,4 +245,4 @@
     });
   </script>
 </body>
-</html>
+  </html>
