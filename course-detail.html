@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Course Detail</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f2f2f2;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #3f3f3f;
+      margin-bottom: 25px;
+    }
+
+    .subject-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @media (min-width: 600px) {
+      .subject-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 900px) {
+      .subject-container {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .subject-card {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s;
+    }
+
+    .subject-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .subject-content {
+      padding: 15px;
+    }
+
+    .subject-title {
+      font-weight: bold;
+      font-size: 1rem;
+      color: #333;
+      margin-bottom: 8px;
+    }
+
+    .subject-info {
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 12px;
+    }
+
+    .subject-button {
+      background: #673ab7;
+      color: white;
+      padding: 8px 12px;
+      text-align: center;
+      border-radius: 6px;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 0.9rem;
+    }
+
+    .subject-button:hover {
+      background: #5e35b1;
+    }
+
+    #status {
+      text-align: center;
+      color: red;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1 id="courseTitle">Loading...</h1>
+  <div class="subject-container" id="subjects">Loading subjects...</div>
+  <div id="status"></div>
+
+  <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const courseId = urlParams.get('courseId');
+    const courseTitleEl = document.getElementById('courseTitle');
+    const subjectsContainer = document.getElementById('subjects');
+    const statusDiv = document.getElementById('status');
+
+    fetch(`https://api.khanglobalstudies.com/cms/courses/${courseId}`)
+      .then(res => res.json())
+      .then(course => {
+        courseTitleEl.textContent = course.title || 'Course Title';
+
+        const subjects = course.classroom || [];
+
+        subjectsContainer.innerHTML = '';
+
+        if (subjects.length === 0) {
+          subjectsContainer.innerHTML = '<p>No subjects found.</p>';
+          return;
+        }
+
+        subjects.forEach(subject => {
+          const lessonId = subject.id;
+          const videos = subject.videos || 0;
+          const notes = subject.notes || 0;
+
+          const card = document.createElement('div');
+          card.className = 'subject-card';
+
+          card.innerHTML = `
+            <div class="subject-content">
+              <div class="subject-title">${subject.name}</div>
+              <div class="subject-info">${videos} Videos, ${notes} Notes</div>
+              <a class="subject-button" href="lesson.html?courseId=${courseId}&lessonId=${lessonId}">Open Lessons</a>
+            </div>
+          `;
+
+          subjectsContainer.appendChild(card);
+        });
+      })
+      .catch(err => {
+        courseTitleEl.textContent = 'Failed to load course';
+        subjectsContainer.innerHTML = '';
+        statusDiv.textContent = 'Something went wrong while fetching course details.';
+        console.error(err);
+      });
+  </script>
+</body>
+</html>

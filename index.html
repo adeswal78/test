@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KGS Courses</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #f2f2f2;
+      padding: 15px;
+      margin: 0;
+    }
+
+    h1 {
+      text-align: center;
+      color: #3f3f3f;
+      margin-bottom: 20px;
+    }
+
+    .course-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    @media (min-width: 600px) {
+      .course-container {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (min-width: 900px) {
+      .course-container {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .course-card {
+      background: white;
+      border-radius: 10px;
+      overflow: hidden;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s;
+    }
+
+    .course-card:hover {
+      transform: translateY(-3px);
+    }
+
+    .course-card img {
+      width: 100%;
+      height: auto;
+      object-fit: cover;
+    }
+
+    .course-content {
+      padding: 12px;
+    }
+
+    .course-title {
+      font-weight: bold;
+      font-size: 1rem;
+      margin-bottom: 10px;
+      color: #333;
+    }
+
+    .course-button {
+      background: #673ab7;
+      color: white;
+      padding: 8px 12px;
+      text-align: center;
+      border-radius: 6px;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 0.9rem;
+      margin-top: 5px;
+    }
+
+    .course-button:hover {
+      background: #5e35b1;
+    }
+
+    #loadMore {
+      display: block;
+      margin: 30px auto 10px;
+      background: #333;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-align: center;
+      border: none;
+    }
+
+    #loadMore:hover {
+      background: #555;
+    }
+
+    #status {
+      text-align: center;
+      margin-top: 15px;
+      color: red;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <h1>All KGS Courses</h1>
+  <div class="course-container" id="courseList">Loading courses...</div>
+  <button id="loadMore">Load More</button>
+  <div id="status"></div>
+
+  <script>
+    let currentPage = 1;
+    const courseList = document.getElementById('courseList');
+    const loadMoreBtn = document.getElementById('loadMore');
+    const statusDiv = document.getElementById('status');
+
+    function loadCourses(page = 1) {
+      fetch(`https://api.khanglobalstudies.com/cms/courses?page=${page}`)
+        .then(res => res.json())
+        .then(data => {
+          if (page === 1) courseList.innerHTML = '';
+
+          (data.data || []).forEach(course => {
+            const card = document.createElement('div');
+            card.className = 'course-card';
+            const imgUrl = course.image?.medium || '';
+            const title = course.title || 'Untitled';
+            const courseId = course.id;
+
+            card.innerHTML = `
+              <img src="${imgUrl}" alt="${title}" />
+              <div class="course-content">
+                <div class="course-title">${title}</div>
+                <a class="course-button" href="course-detail.html?courseId=${courseId}">View Details</a>
+              </div>
+            `;
+            courseList.appendChild(card);
+          });
+
+          if (!data.next_page_url) {
+            loadMoreBtn.style.display = 'none';
+            statusDiv.textContent = 'No more courses to load.';
+          } else {
+            currentPage++;
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          statusDiv.textContent = 'Failed to load courses.';
+        });
+    }
+
+    loadCourses(currentPage);
+
+    loadMoreBtn.addEventListener('click', () => {
+      loadCourses(currentPage);
+    });
+  </script>
+</body>
+</html>
