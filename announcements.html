@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Course Announcements</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #4a148c;
+      margin-bottom: 20px;
+    }
+
+    .announcement {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .announcement h3 {
+      margin: 0 0 10px;
+      color: #673ab7;
+      font-size: 1.1rem;
+    }
+
+    .announcement .date {
+      font-size: 0.85rem;
+      color: #888;
+      margin-bottom: 8px;
+    }
+
+    .announcement .message {
+      color: #333;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      text-decoration: none;
+      font-weight: bold;
+      color: #673ab7;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>📢 Announcements</h1>
+  <div id="announcements">Loading...</div>
+  <a href="javascript:history.back()" class="back-link">⬅ Go Back</a>
+
+  <script>
+    const courseId = new URLSearchParams(window.location.search).get("courseId");
+    const token = "81240814|FF036cgrNbjF5RWI9LBzA4MKHG6bYUNhE5HlVDTe30fa9dc9";
+    const container = document.getElementById("announcements");
+
+    if (!courseId) {
+      container.innerHTML = "<p style='color:red;'>❌ Course ID not provided in URL.</p>";
+    } else {
+      fetch(`https://api.khanglobalstudies.com/v1/courses/${courseId}/announcements?medium=0`, {
+        headers: {
+          "Authorization": "Bearer " + token,
+          "Accept": "application/json"
+        }
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (!Array.isArray(data) || data.length === 0) {
+          container.innerHTML = "<p>No announcements found.</p>";
+          return;
+        }
+
+        container.innerHTML = "";
+        data.forEach((item, i) => {
+          const published = new Date(item.published_at).toLocaleString("en-IN");
+          const htmlContent = `
+            <div class="announcement">
+              <h3>KGS TEAM</h3>
+              <div class="date">📅 Published: ${published}</div>
+              <div class="message">${item.content}</div>
+            </div>
+          `;
+          container.innerHTML += htmlContent;
+        });
+      })
+      .catch(err => {
+        console.error(err);
+        container.innerHTML = "<p style='color:red;'>❌ Failed to load announcements.</p>";
+      });
+    }
+  </script>
+</body>
+</html>
